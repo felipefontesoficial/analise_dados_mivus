@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 
 # Título
-st.title('Calculadora de Funil de Vendas')
+st.title('Calculadora Mivus de Funil')
 
 # Colunas para organizar a visualização
 col1, col2 = st.columns(2)
