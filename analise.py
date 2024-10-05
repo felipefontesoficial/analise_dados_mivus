@@ -2,11 +2,21 @@ import streamlit as st
 import numpy as np
 #import matplotlib.pyplot as plt
 
-#usuarios = ["Felipe Fontes", "Jullia Nascimento"]
-#atividades = ["Pesquisa", "Ligação","Mensagem", ,]
+usuarios = ["Kactus Contabilidade", "Sales Box", "Planos Consultoria", "Solarce Energia"]
 
 # Título
 st.title('Calculadora Mivus de Funil')
+st.write("---")
+
+st.sidebar.subheader("Selecione seu perfil abaixo:")
+usuario_selecionado = st.sidebar.selectbox(
+    "",
+    (usuarios),
+    index=None,
+    placeholder="Selecione seu usuário",
+)
+
+st.sidebar.write("Você é:", usuario_selecionado)
 
 # Colunas para organizar a visualização
 col1, col2 = st.columns(2)
@@ -15,6 +25,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.header('Insira seus números')
     
+    atendimento_teste = 0
     # Entradas
     ligacoes = st.number_input('Quantas ligações ou abordagens foram feitas?', min_value=0)
     atendidas = st.number_input('Quantas ligações foram atendidas (ou abordagens respondidas)?', min_value=0)
@@ -24,6 +35,7 @@ with col1:
         # Cálculos das taxas de conversão
         if ligacoes > 0:
             taxa_atendimento = (atendidas / ligacoes) * 100
+            atendimento_teste = taxa_atendimento
         else:
             taxa_atendimento = 0
 
@@ -38,6 +50,7 @@ if ligacoes > 0:
     taxa_atendimento = (atendidas / ligacoes) * 100
 else:
     taxa_atendimento = 0
+        
 
 if atendidas > 0:
     taxa_reuniao = (reunioes_agendadas / atendidas) * 100
@@ -79,3 +92,4 @@ with col2:
         else:
             st.write(f'Taxa de Conversão de Ligações Atendidas: {taxa_atendimento:.2f}%')
             st.write(f'Taxa de Conversão de Reuniões Agendadas: {taxa_reuniao:.2f}%')
+
