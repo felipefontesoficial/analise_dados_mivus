@@ -49,17 +49,23 @@ else:
 with col2:
         # Avaliação e recomendações
         st.subheader('Avaliação e Recomendações:')
-        if ligacoes < 20:
+        if ligacoes == 0:
+            st.warning("Aguardando dados...")
+        elif ligacoes < 20:
             st.warning("Você abordou menos que o recomendado. Tente abordar entre 20 a 50 pessoas por dia.")
         else:
             st.success("Bateu a meta do dia :D")
 
-        if taxa_atendimento < 25:
+        if taxa_atendimento == 0:
+            st.warning("Aguardando dados...")
+        elif taxa_atendimento < 25:
             st.warning("A taxa de atendimento está abaixo da média (30%). Considere revisar a qualidade das suas listas ou melhorar o script de abordagem.")
         else:
             st.success("A taxa de atendimento está boa!")
 
-        if taxa_reuniao < 10:
+        if taxa_reuniao == 0:
+            st.warning("Aguardando dados...")
+        elif taxa_reuniao < 10:
             st.warning("A taxa de agendamento de reuniões está abaixo da média (10%). Talvez seja interessante aprimorar suas técnicas de persuasão nas ligações.")
         else:
             st.success("A taxa de agendamento de reuniões está no nível recomendado!")
