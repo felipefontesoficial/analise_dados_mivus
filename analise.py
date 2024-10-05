@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 #usuarios = ["Felipe Fontes", "Jullia Nascimento"]
 #atividades = ["Pesquisa", "Ligação","Mensagem", ,]
