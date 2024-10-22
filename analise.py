@@ -72,6 +72,7 @@ def mostrar_consulta_cnpj():
     st.title("Consulta de CNPJ")
 
     cnpj_input = st.text_input("Digite o CNPJ. APENAS números:", "")
+    cnpj_input = cnpj_input.replace(".", "").replace("-", "").replace("/", "")
     if st.button("Consultar"):
         if cnpj_input:
             consulta_cnpj(cnpj_input)
