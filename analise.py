@@ -4,6 +4,38 @@ import json
 
 usuarios = ["Kactus Contabilidade", "Sales Box", "Planos Consultoria", "Solarce Energia"]
 
+# Configuração da página
+st.set_page_config(page_title="Minha aplicação", page_icon=":shark:", layout="wide")
+
+# Tema escuro
+st.markdown(
+    """
+    <style>
+    body {
+        background-color: #212121; 
+        color: #ffffff; 
+    }
+    .stButton>button {
+        background-color: #007bff; 
+        color: #ffffff; 
+    }
+    /* Outros estilos personalizados, se necessário */
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Carregando a logo
+logo = "caminho_para_sua_logo.png"  # Substitua pelo caminho correto
+st.sidebar.image(logo, use_column_width=True)
+
+# Opções do menu lateral
+opcao = st.sidebar.selectbox(
+    "Selecione uma opção:",
+    ("Verificar Dados CNPJ", "Calculadora de Funil")  # Ordem das opções invertida
+)
+
+# Função para mostrar a calculadora de funil
 def mostrar_calculadora_funil():
     st.title('Calculadora Mivus de Funil')
     st.write("---")
@@ -68,10 +100,11 @@ def mostrar_calculadora_funil():
                     st.write(f'Taxa de Conversão de Ligações Atendidas: {taxa_atendimento:.2f}%')
                     st.write(f'Taxa de Conversão de Reuniões Agendadas: {taxa_reuniao:.2f}%')
 
+# Função para mostrar a consulta de CNPJ
 def mostrar_consulta_cnpj():
-    st.title("Consulta de CNPJ")
+    st.title("Consultor de CNPJ Mivus")
 
-    cnpj_input = st.text_input("Digite o CNPJ. APENAS números:", "")
+    cnpj_input = st.text_input("Digite o CNPJ:", "")
     cnpj_input = cnpj_input.replace(".", "").replace("-", "").replace("/", "")
     if st.button("Consultar"):
         if cnpj_input:
@@ -116,6 +149,19 @@ def consulta_cnpj(cnpj):
         st.write(f"Data da Situação: {data_situacao}")
         st.write(f"Número de Sócios: {numero_socios}")
 
+        # Encontrar e exibir o administrador
+        st.subheader("Administrador:")
+        administrador = None
+        for socio in resp.get('qsa', []):
+            if "administrador" in socio['qual'].lower():
+                administrador = socio['nome']
+                break
+
+        if administrador:
+            st.write(administrador)
+        else:
+            st.write("Nenhum administrador encontrado.")
+
         st.subheader("Sócios:")
         if numero_socios > 0:
             for socio in resp['qsa']:
@@ -129,11 +175,7 @@ def consulta_cnpj(cnpj):
         st.error("Ocorreu um erro ao consultar o CNPJ. Verifique o CNPJ e tente novamente.")
 
 
-opcao = st.sidebar.selectbox(
-    "Selecione uma opção:",
-    ("Calculadora de Funil", "Verificar Dados CNPJ")
-)
-
+# Mostrar a opção selecionada
 if opcao == "Calculadora de Funil":
     mostrar_calculadora_funil()
 elif opcao == "Verificar Dados CNPJ":
