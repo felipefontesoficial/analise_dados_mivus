@@ -2,38 +2,10 @@ import streamlit as st
 import requests
 import json
 
+# Lista de usuários (pode ser modificada conforme necessário)
 usuarios = ["Kactus Contabilidade", "Sales Box", "Planos Consultoria", "Solarce Energia"]
 
-# Configuração da página
-st.set_page_config(page_title="Minha aplicação", page_icon=":shark:", layout="wide")
-
-# Tema escuro
-st.markdown(
-    """
-    <style>
-    body {
-        background-color: #212121; 
-        color: #ffffff; 
-    }
-    .stButton>button {
-        background-color: #007bff; 
-        color: #ffffff; 
-    }
-    /* Outros estilos personalizados, se necessário */
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# Carregando a logo
-logo = "caminho_para_sua_logo.png"  # Substitua pelo caminho correto
-st.sidebar.image(logo, use_column_width=True)
-
-# Opções do menu lateral
-opcao = st.sidebar.selectbox(
-    "Selecione uma opção:",
-    ("Verificar Dados CNPJ", "Calculadora de Funil")  # Ordem das opções invertida
-)
+# --- Funções do sistema ---
 
 # Função para mostrar a calculadora de funil
 def mostrar_calculadora_funil():
@@ -114,7 +86,7 @@ def mostrar_consulta_cnpj():
 
 def consulta_cnpj(cnpj):
     url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
-    querystring = {"token": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXX", "cnpj": "06990590000123", "plugin": "RF"} 
+    querystring = {"token": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXX", "cnpj": "06990590000123", "plugin": "RF"} # coloque sua token válida aqui!
     response = requests.request("GET", url, params=querystring)
 
     if response.status_code == 200:
@@ -174,9 +146,88 @@ def consulta_cnpj(cnpj):
     else:
         st.error("Ocorreu um erro ao consultar o CNPJ. Verifique o CNPJ e tente novamente.")
 
+# Função para consultar RDAP e exibir os dados
+def consultar_rdap(dominio):
+    url = f"https://rdap.registro.br/domain/{dominio}"
+    resposta = requests.get(url)
+    if resposta.status_code == 200:
+        dados = resposta.json()
 
-# Mostrar a opção selecionada
+        # Extraindo os dados desejados
+        nome_dominio = dados['handle']
+        status = dados['status'][0]
+
+        # Percorrendo as entidades para encontrar o registrante
+        for entidade in dados['entities']:
+            if 'roles' in entidade and 'registrant' in entidade['roles']:
+                razao_social = entidade['vcardArray'][1][2][2]
+                handle_registrante = entidade['handle']
+                representante_legal = entidade.get('legalRepresentative', 'Não informado')
+                
+                # Verificando se o CNPJ/CPF está presente
+                cnpj_cpf = 'Não informado'
+                if 'publicIds' in entidade:
+                    for public_id in entidade['publicIds']:
+                        if public_id['type'] in ('cnpj', 'cpf'):
+                            cnpj_cpf = public_id['identifier']
+                break
+        
+        # Exibindo os dados utilizando elementos do Streamlit
+        st.subheader(f"Informações do domínio {dominio}:")
+        st.write(f"Nome do Domínio: {nome_dominio}")
+        st.write(f"Status: {status}")
+        st.write(f"Razão Social: {razao_social}")
+        st.write(f"CNPJ/CPF: {cnpj_cpf}")
+        st.write(f"Handle do Registrante: {handle_registrante}")
+        st.write(f"Representante Legal: {representante_legal}")
+
+    else:
+        st.error(f"Erro ao consultar o domínio: {resposta.status_code}")
+
+# Função para mostrar a interface da consulta de domínio
+def mostrar_consulta_dominio():
+    st.title("Consultar Domínio")
+    dominio_input = st.text_input("Digite o domínio:")
+    if st.button("Consultar"):
+        if dominio_input:
+            consultar_rdap(dominio_input)
+        else:
+            st.warning("Por favor, digite um domínio.")
+
+# --- Configuração da página ---
+st.set_page_config(page_title="Minha aplicação", page_icon=":shark:", layout="wide")
+
+# Tema escuro
+st.markdown(
+    """
+    <style>
+    body {
+        background-color: #212121; 
+        color: #ffffff; 
+    }
+    .stButton>button {
+        background-color: #007bff; 
+        color: #ffffff; 
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Carregando a logo (substitua pelo caminho correto)
+logo = "caminho_para_sua_logo.png" 
+st.sidebar.image(logo, use_column_width=True)
+
+# --- Menu lateral ---
+opcao = st.sidebar.selectbox(
+    "Selecione uma opção:",
+    ("Verificar Dados CNPJ", "Consultar Domínio", "Calculadora de Funil")
+)
+
+# --- Lógica principal ---
 if opcao == "Calculadora de Funil":
     mostrar_calculadora_funil()
 elif opcao == "Verificar Dados CNPJ":
     mostrar_consulta_cnpj()
+elif opcao == "Consultar Domínio":
+    mostrar_consulta_dominio()
