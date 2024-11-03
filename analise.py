@@ -6,7 +6,7 @@ from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate
 
 # Configuração da API para o chatbot
-api_key = 'Inserir-api'  
+api_key = 'API_KEY'  
 os.environ['GROQ_API_KEY'] = api_key
 chat = ChatGroq(model='llama-3.1-70b-versatile')
 
