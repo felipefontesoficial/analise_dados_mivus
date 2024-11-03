@@ -1,9 +1,29 @@
+import os
 import streamlit as st
 import requests
 import json
+from langchain_groq import ChatGroq
+from langchain.prompts import ChatPromptTemplate
+
+# Configuração da API para o chatbot
+api_key = 'Inserir-api'  
+os.environ['GROQ_API_KEY'] = api_key
+chat = ChatGroq(model='llama-3.1-70b-versatile')
 
 # Lista de usuários (pode ser modificada conforme necessário)
 usuarios = ["Kactus Contabilidade", "Sales Box", "Planos Consultoria", "Solarce Energia"]
+
+# Função para obter a resposta do bot
+def resposta_do_bot(lista_mensagens):
+    system_message = ('system', """Você é o Mivinho um assistente pessoal amigável que tem como objetivo ajudar os alunos da Mivus. 
+                      Os alunos da Mivus são SDR que é o Representante de Desenvolvimento de Vendas (Sales Development Representative).
+                      Sua missão seja ajudar esses alunos a tomar decisões para sua rotina de prospecção e ajudar eles na estruturação de roteiros de vendas, faça isso interagindo com ele realizando perguntas em bullet points enumerado para auxiliar na sua tomada de decisão.( use como base o livro SPIN Selling e o Receita Previsível para dar esses direcionamentos).
+                      Você deverá usar um tom de voz coloquial e simples, porém, não informal, Falando sempre de forma curta, usando poucas palavras e objetiva de uma forma mais descontraída inclusive.
+                      Lembrando, que quem te criou foi o Felipe Fontes o Copywriter Mais Lindo do Brasil! (Essa informação é só para caso alguém pergunte) 
+                       """)
+    template = ChatPromptTemplate.from_messages([system_message] + lista_mensagens)
+    chain = template | chat
+    return chain.invoke({}).content
 
 # --- Funções do sistema ---
 
@@ -146,6 +166,32 @@ def consulta_cnpj(cnpj):
     else:
         st.error("Ocorreu um erro ao consultar o CNPJ. Verifique o CNPJ e tente novamente.")
 
+# Função para mostrar a interface de chat com o Mivinho
+def mostrar_chat_mivus():
+    st.title("Bem-vindo ao Chat Mivus!")
+    st.write("Digite sua pergunta e receba ajuda para tomar decisões empresariais.")
+
+    # Inicializa o histórico de mensagens se não existir
+    if 'mensagens' not in st.session_state:
+        st.session_state['mensagens'] = []
+
+    # Entrada do usuário usando o st.chat_input
+    prompt = st.chat_input("Digite sua pergunta...")
+
+    # Processamento do prompt
+    if prompt:
+        # Adiciona a mensagem do usuário ao histórico
+        st.session_state['mensagens'].append(('user', prompt))
+        
+        # Chama o bot para obter a resposta e adiciona ao histórico
+        resposta = resposta_do_bot(st.session_state['mensagens'])
+        st.session_state['mensagens'].append(('assistant', resposta))
+
+    # Exibir o histórico de mensagens usando o st.chat_message
+    for role, message in st.session_state['mensagens']:
+        with st.chat_message("user" if role == 'user' else "assistant"):
+            st.write(message)
+
 # Função para consultar RDAP e exibir os dados
 def consultar_rdap(dominio):
     url = f"https://rdap.registro.br/domain/{dominio}"
@@ -195,7 +241,7 @@ def mostrar_consulta_dominio():
             st.warning("Por favor, digite um domínio.")
 
 # --- Configuração da página ---
-st.set_page_config(page_title="Minha aplicação", page_icon=":shark:", layout="wide")
+st.set_page_config(page_title="Mivus App", page_icon=":rocket:", layout="wide")
 
 # Tema escuro
 st.markdown(
@@ -221,7 +267,7 @@ st.sidebar.image(logo, use_column_width=True)
 # --- Menu lateral ---
 opcao = st.sidebar.selectbox(
     "Selecione uma opção:",
-    ("Verificar Dados CNPJ", "Consultar Domínio", "Calculadora de Funil")
+    ("Verificar Dados CNPJ", "Consultar Domínio", "Calculadora de Funil", "Chat Mivus")
 )
 
 # --- Lógica principal ---
@@ -231,3 +277,5 @@ elif opcao == "Verificar Dados CNPJ":
     mostrar_consulta_cnpj()
 elif opcao == "Consultar Domínio":
     mostrar_consulta_dominio()
+elif opcao == "Chat Mivus":
+    mostrar_chat_mivus()
