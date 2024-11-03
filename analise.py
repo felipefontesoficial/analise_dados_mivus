@@ -195,7 +195,7 @@ def mostrar_consulta_dominio():
             st.warning("Por favor, digite um domínio.")
 
 # --- Configuração da página ---
-st.set_page_config(page_title="Minha aplicação", page_icon=":shark:", layout="wide")
+st.set_page_config(page_title="Mivus APP", page_icon=":rocket:", layout="wide")
 
 # Tema escuro
 st.markdown(
